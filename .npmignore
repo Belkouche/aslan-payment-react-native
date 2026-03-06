@@ -1,0 +1,15 @@
+# Source (types shipped via dist/)
+src/
+
+# Example app
+example/
+
+# Dev config
+.github/
+.gitignore
+tsconfig.json
+*.log
+
+# IDE
+.idea/
+.vscode/

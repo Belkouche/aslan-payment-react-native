@@ -1,0 +1,39 @@
+{
+  "name": "@aslan/payment-react-native",
+  "version": "0.1.0",
+  "description": "Aslan Payment SDK for React Native — WebView-based hosted checkout",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "module": "dist/index.mjs",
+  "files": ["dist", "src"],
+  "scripts": {
+    "build": "tsc",
+    "type-check": "tsc --noEmit",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "npm run clean && npm run build"
+  },
+  "peerDependencies": {
+    "react": ">=18.0.0",
+    "react-native": ">=0.70.0",
+    "react-native-webview": ">=13.0.0"
+  },
+  "peerDependenciesMeta": {
+    "react-native-webview": {
+      "optional": false
+    }
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.0",
+    "@types/react-native": "^0.73.0",
+    "typescript": "^5.4.0",
+    "react": "^18.2.0",
+    "react-native": "^0.74.0",
+    "react-native-webview": "^13.8.0"
+  },
+  "keywords": ["aslan", "payment", "react-native", "morocco", "mad", "checkout"],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Belkouche/aslan-payment-react-native"
+  }
+}
