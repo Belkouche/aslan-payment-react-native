@@ -22,11 +22,11 @@ Your App  -->  SDK  -->  WebView  -->  Aslan Hosted Checkout  -->  PSP (NAPS / C
 ## Installation
 
 ```bash
-npm install @aslan/payment-react-native react-native-webview
+npm install github:Belkouche/aslan-payment-react-native react-native-webview
 ```
 
 ```bash
-yarn add @aslan/payment-react-native react-native-webview
+yarn add github:Belkouche/aslan-payment-react-native react-native-webview
 ```
 
 For Expo:
