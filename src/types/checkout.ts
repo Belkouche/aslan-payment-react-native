@@ -9,9 +9,23 @@ export interface LineItem {
   category?: string;
 }
 
+export interface Seller {
+  id: string;
+  name: string;
+  email?: string;
+  /** Commission rate in basis points (0-10000) */
+  commissionRate?: number;
+  fixedFee?: number;
+  metadata?: Record<string, string>;
+}
+
 export interface CheckoutParams {
-  /** Amount in centimes (100 = 1.00 MAD) */
-  amount: number;
+  /** Amount in centimes (100 = 1.00 MAD). Optional for open-amount sessions. */
+  amount?: number;
+  /** Minimum amount in centimes (open-amount sessions) */
+  minAmount?: number;
+  /** Maximum amount in centimes (open-amount sessions) */
+  maxAmount?: number;
   /** Only MAD supported */
   currency?: 'MAD';
   /** Override the auto-generated success URL */
@@ -25,6 +39,8 @@ export interface CheckoutParams {
   };
   metadata?: Record<string, string>;
   lineItems?: LineItem[];
+  sellers?: Seller[];
+  vendorId?: string;
 }
 
 export interface CheckoutResult {

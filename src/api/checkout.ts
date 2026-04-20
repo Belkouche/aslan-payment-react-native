@@ -1,7 +1,9 @@
 import { apiRequest } from './client';
 
 export interface CreateSessionRequest {
-  amount: number;
+  amount?: number;
+  minAmount?: number;
+  maxAmount?: number;
   currency?: string;
   successUrl: string;
   cancelUrl: string;
@@ -20,6 +22,15 @@ export interface CreateSessionRequest {
     imageUrl?: string;
     category?: string;
   }>;
+  sellers?: Array<{
+    id: string;
+    name: string;
+    email?: string;
+    commissionRate?: number;
+    fixedFee?: number;
+    metadata?: Record<string, string>;
+  }>;
+  vendorId?: string;
 }
 
 export interface CheckoutSessionResponse {

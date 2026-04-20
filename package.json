@@ -1,6 +1,6 @@
 {
   "name": "@aslan/payment-react-native",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Aslan Payment SDK for React Native — WebView-based hosted checkout",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
