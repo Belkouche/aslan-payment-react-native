@@ -18,8 +18,8 @@ export interface UseAslanReturn {
   isReady: boolean;
   /** Internal: current checkout URL for WebView components */
   _checkoutUrl: string | null;
-  /** Internal: resolve the current checkout */
-  _resolveCheckout: ((result: CheckoutResult) => void) | null;
+  /** Internal: ref to the current checkout resolver — always reflects live value */
+  _resolveCheckout: React.MutableRefObject<((result: CheckoutResult) => void) | null>;
   /** Internal: dismiss the checkout modal */
   _dismissCheckout: () => void;
 }
@@ -30,9 +30,10 @@ export function useAslan(): UseAslanReturn {
     throw new AslanError('INVALID_KEY', 'useAslan must be used within an <AslanProvider>');
   }
 
-  const { config, isTestMode, isReady } = context;
+  const { config, isTestMode, isReady, deepLinkResolverRef } = context;
   const [checkoutUrl, setCheckoutUrl] = useState<string | null>(null);
-  const resolveRef = useRef<((result: CheckoutResult) => void) | null>(null);
+  // resolveRef is shared with AslanProvider's deep-link handler via context
+  const resolveRef = deepLinkResolverRef;
 
   const dismissCheckout = useCallback(() => {
     setCheckoutUrl(null);
@@ -56,12 +57,16 @@ export function useAslan(): UseAslanReturn {
       const session = await createCheckoutSession(
         {
           amount: params.amount,
+          minAmount: params.minAmount,
+          maxAmount: params.maxAmount,
           currency: params.currency,
           successUrl,
           cancelUrl,
           customer: params.customer,
           metadata: params.metadata,
           lineItems: params.lineItems,
+          sellers: params.sellers,
+          vendorId: params.vendorId,
         },
         config.publishableKey,
         config.apiBaseUrl,
@@ -101,7 +106,9 @@ export function useAslan(): UseAslanReturn {
     isTestMode,
     isReady,
     _checkoutUrl: checkoutUrl,
-    _resolveCheckout: resolveRef.current,
+    // Expose the ref itself so callers always read the current value,
+    // not the stale snapshot captured at render time.
+    _resolveCheckout: resolveRef,
     _dismissCheckout: dismissCheckout,
   };
 }

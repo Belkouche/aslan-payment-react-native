@@ -19,7 +19,8 @@ export function isTestMode(key: string): boolean {
   return key.startsWith(PK_TEST_PREFIX);
 }
 
-export function validateAmount(amount: number): void {
+export function validateAmount(amount: number | undefined): void {
+  if (amount === undefined || amount === null) return; // open-amount session
   if (!Number.isInteger(amount)) {
     throw new AslanError('VALIDATION_ERROR', 'Amount must be an integer (centimes)');
   }
