@@ -2,8 +2,6 @@ import { apiRequest } from './client';
 
 export interface CreateSessionRequest {
   amount?: number;
-  minAmount?: number;
-  maxAmount?: number;
   currency?: string;
   successUrl: string;
   cancelUrl: string;

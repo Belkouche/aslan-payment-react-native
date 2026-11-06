@@ -1,10 +1,10 @@
 import { useCallback, useContext, useRef, useState } from 'react';
 import { AslanContext, type AslanContextValue } from './AslanProvider';
 import { createCheckoutSession } from './api/checkout';
-import { getTransaction as fetchTransaction } from './api/transactions';
+import { getCheckoutStatus as fetchCheckoutStatus } from './api/transactions';
 import { resolvePaymentLinkUrl } from './api/payment-links';
 import type { CheckoutParams, CheckoutResult } from './types/checkout';
-import type { Transaction } from './types/transaction';
+import type { CheckoutStatus } from './types/transaction';
 import { AslanError } from './types/errors';
 import { validateAmount } from './utils/validation';
 
@@ -13,7 +13,8 @@ const SDK_CALLBACK_BASE = 'https://api.aslanpay.ma/pay/sdk/callback';
 export interface UseAslanReturn {
   checkout: (params: CheckoutParams) => Promise<CheckoutResult>;
   openPaymentLink: (url: string) => Promise<CheckoutResult>;
-  getTransaction: (id: string) => Promise<Transaction>;
+  /** Poll a checkout session by its token. For authoritative payment status, confirm server-side. */
+  getCheckoutStatus: (sessionToken: string) => Promise<CheckoutStatus>;
   isTestMode: boolean;
   isReady: boolean;
   /** Internal: current checkout URL for WebView components */
@@ -57,8 +58,6 @@ export function useAslan(): UseAslanReturn {
       const session = await createCheckoutSession(
         {
           amount: params.amount,
-          minAmount: params.minAmount,
-          maxAmount: params.maxAmount,
           currency: params.currency,
           successUrl,
           cancelUrl,
@@ -93,9 +92,9 @@ export function useAslan(): UseAslanReturn {
     [],
   );
 
-  const getTransactionFn = useCallback(
-    (id: string): Promise<Transaction> => {
-      return fetchTransaction(id, config.publishableKey, config.apiBaseUrl);
+  const getCheckoutStatusFn = useCallback(
+    (sessionToken: string): Promise<CheckoutStatus> => {
+      return fetchCheckoutStatus(sessionToken, config.publishableKey, config.apiBaseUrl);
     },
     [config],
   );
@@ -103,7 +102,7 @@ export function useAslan(): UseAslanReturn {
   return {
     checkout,
     openPaymentLink,
-    getTransaction: getTransactionFn,
+    getCheckoutStatus: getCheckoutStatusFn,
     isTestMode,
     isReady,
     _checkoutUrl: checkoutUrl,

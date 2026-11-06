@@ -10,7 +10,35 @@ interface RequestOptions {
 
 interface ApiResponse<T> {
   data?: T;
-  error?: { code: string; message: string };
+}
+
+const KNOWN_CODES = [
+  'INVALID_KEY',
+  'VALIDATION_ERROR',
+  'RATE_LIMITED',
+  'SERVER_ERROR',
+  'PROVIDER_ACCOUNT_NOT_FOUND',
+  'PROVIDER_ACCOUNT_INACTIVE',
+  'PROVIDER_ACCOUNT_UNSUPPORTED',
+  'PROVIDER_ACCOUNT_RECURRING_DISABLED',
+] as const;
+
+/**
+ * The API returns flat errors `{ statusCode, code, error, message, details? }`
+ * (where `error` is the HTTP reason phrase string); some routes return the
+ * nested form `{ error: { code, message, details? } }`. Accept both.
+ */
+export function parseErrorBody(json: unknown, status: number): AslanError {
+  const body = (json ?? {}) as Record<string, any>;
+  const nested = body.error && typeof body.error === 'object' ? body.error : undefined;
+  const code = nested?.code ?? body.code;
+  const message = nested?.message ?? body.message;
+  const errorCode = (KNOWN_CODES as readonly string[]).includes(code) ? code : 'SERVER_ERROR';
+  return new AslanError(
+    errorCode,
+    typeof message === 'string' ? message : `Request failed with status ${status}`,
+    status,
+  );
 }
 
 export async function apiRequest<T>(options: RequestOptions): Promise<T> {
@@ -43,23 +71,7 @@ export async function apiRequest<T>(options: RequestOptions): Promise<T> {
   }
 
   if (!response.ok) {
-    const code = json.error?.code ?? 'SERVER_ERROR';
-    const message = json.error?.message ?? `Request failed with status ${response.status}`;
-    const errorCode = (
-      [
-        'INVALID_KEY',
-        'VALIDATION_ERROR',
-        'RATE_LIMITED',
-        'SERVER_ERROR',
-        'PROVIDER_ACCOUNT_NOT_FOUND',
-        'PROVIDER_ACCOUNT_INACTIVE',
-        'PROVIDER_ACCOUNT_UNSUPPORTED',
-        'PROVIDER_ACCOUNT_RECURRING_DISABLED',
-      ] as const
-    ).includes(code as any)
-      ? (code as any)
-      : 'SERVER_ERROR';
-    throw new AslanError(errorCode, message, response.status);
+    throw parseErrorBody(json, response.status);
   }
 
   return json.data ?? (json as unknown as T);

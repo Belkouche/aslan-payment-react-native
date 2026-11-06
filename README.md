@@ -216,7 +216,7 @@ Main hook. Must be called inside an `<AslanProvider>`.
 |--------|------|-------------|
 | `checkout` | `(params: CheckoutParams) => Promise<CheckoutResult>` | Create a checkout session and open the WebView |
 | `openPaymentLink` | `(url: string) => Promise<CheckoutResult>` | Open an existing payment link |
-| `getTransaction` | `(id: string) => Promise<Transaction>` | Fetch transaction details |
+| `getCheckoutStatus` | `(sessionToken: string) => Promise<CheckoutStatus>` | Poll a checkout session's status by token |
 | `isTestMode` | `boolean` | `true` if using a `pk_test_*` key |
 | `isReady` | `boolean` | `true` once the SDK is initialized |
 | `_checkoutUrl` | `string \| null` | Current checkout URL (pass to Modal/Sheet) |
@@ -272,19 +272,25 @@ const result = await checkout({
 | `status` | `'succeeded' \| 'failed' \| 'cancelled'` | Payment outcome |
 | `transactionId` | `string \| undefined` | Transaction ID (present on success/failure) |
 
-#### `getTransaction(id: string)`
+#### `getCheckoutStatus(sessionToken: string)`
 
-Fetch transaction details after a payment.
+Poll a checkout session by its token (public route, no secret key needed).
 
 ```tsx
-const txn = await getTransaction('txn_abc123');
-console.log(txn.status, txn.amount, txn.paidAt);
+const { status, transaction } = await getCheckoutStatus(sessionToken);
+console.log(status, transaction?.status, transaction?.paidAt);
 ```
 
-**Transaction**
+> `getTransaction()` was removed: `GET /api/v1/transactions/:id` requires a secret key, which must never ship in a mobile app (it always returned 403 with a publishable key). Treat `getCheckoutStatus` as a UI hint only; confirm payment server-side (webhooks or `GET /api/v1/transactions/:id` with your secret key) before fulfilling an order.
+
+**CheckoutStatus**
 
 | Field | Type | Description |
 |-------|------|-------------|
+| `status` | `string` | Session status (`open`, `processing`, `complete`, `expired`, ...) |
+| `transaction` | `{ id, status, paidAt } \| undefined` | Linked transaction, once a payment started |
+
+-------|------|-------------|
 | `id` | `string` | Transaction ID |
 | `amount` | `number` | Amount in centimes |
 | `currency` | `string` | Currency code |

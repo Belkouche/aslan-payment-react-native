@@ -1,14 +1,18 @@
 import { apiRequest } from './client';
-import type { Transaction } from '../types/transaction';
+import type { CheckoutStatus } from '../types/transaction';
 
-export function getTransaction(
-  transactionId: string,
+/**
+ * Poll a checkout session's status. Public, token-authenticated route: the
+ * session token is the credential, so no secret key is needed in the app.
+ */
+export function getCheckoutStatus(
+  sessionToken: string,
   publishableKey: string,
   baseUrl: string,
-): Promise<Transaction> {
-  return apiRequest<Transaction>({
+): Promise<CheckoutStatus> {
+  return apiRequest<CheckoutStatus>({
     method: 'GET',
-    path: `/api/v1/transactions/${encodeURIComponent(transactionId)}`,
+    path: `/checkout/sessions/${encodeURIComponent(sessionToken)}/status`,
     publishableKey,
     baseUrl,
   });

@@ -22,10 +22,6 @@ export interface Seller {
 export interface CheckoutParams {
   /** Amount in centimes (100 = 1.00 MAD). Optional for open-amount sessions. */
   amount?: number;
-  /** Minimum amount in centimes (open-amount sessions) */
-  minAmount?: number;
-  /** Maximum amount in centimes (open-amount sessions) */
-  maxAmount?: number;
   /** Only MAD supported */
   currency?: 'MAD';
   /** Override the auto-generated success URL */

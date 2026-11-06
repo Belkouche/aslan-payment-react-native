@@ -10,6 +10,7 @@ export type {
 export type {
   Transaction,
   TransactionStatus,
+  CheckoutStatus,
 } from './transaction';
 export {
   AslanError,
