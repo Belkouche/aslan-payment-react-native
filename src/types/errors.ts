@@ -5,7 +5,11 @@ export type AslanErrorCode =
   | 'CHECKOUT_FAILED'
   | 'VALIDATION_ERROR'
   | 'RATE_LIMITED'
-  | 'SERVER_ERROR';
+  | 'SERVER_ERROR'
+  | 'PROVIDER_ACCOUNT_NOT_FOUND'
+  | 'PROVIDER_ACCOUNT_INACTIVE'
+  | 'PROVIDER_ACCOUNT_UNSUPPORTED'
+  | 'PROVIDER_ACCOUNT_RECURRING_DISABLED';
 
 export class AslanError extends Error {
   readonly code: AslanErrorCode;

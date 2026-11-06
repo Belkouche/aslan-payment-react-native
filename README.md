@@ -216,7 +216,7 @@ Main hook. Must be called inside an `<AslanProvider>`.
 |--------|------|-------------|
 | `checkout` | `(params: CheckoutParams) => Promise<CheckoutResult>` | Create a checkout session and open the WebView |
 | `openPaymentLink` | `(url: string) => Promise<CheckoutResult>` | Open an existing payment link |
-| `getTransaction` | `(id: string) => Promise<Transaction>` | Fetch transaction details |
+| `getCheckoutStatus` | `(sessionToken: string) => Promise<CheckoutStatus>` | Poll a checkout session's status by token |
 | `isTestMode` | `boolean` | `true` if using a `pk_test_*` key |
 | `isReady` | `boolean` | `true` once the SDK is initialized |
 | `_checkoutUrl` | `string \| null` | Current checkout URL (pass to Modal/Sheet) |
@@ -263,6 +263,7 @@ const result = await checkout({
 | `customer` | `object` | No | `{ email?, name?, phone? }` |
 | `metadata` | `Record<string, string>` | No | Custom key-value pairs (max 20 keys, values max 500 chars) |
 | `lineItems` | `LineItem[]` | No | Array of line items (max 50) |
+| `providerAccount` | `string` | No | Alias of an additional PSP account (`^[a-z0-9][a-z0-9-]{0,31}$`). Omit or `"default"` for the default account |
 
 **CheckoutResult**
 
@@ -271,19 +272,25 @@ const result = await checkout({
 | `status` | `'succeeded' \| 'failed' \| 'cancelled'` | Payment outcome |
 | `transactionId` | `string \| undefined` | Transaction ID (present on success/failure) |
 
-#### `getTransaction(id: string)`
+#### `getCheckoutStatus(sessionToken: string)`
 
-Fetch transaction details after a payment.
+Poll a checkout session by its token (public route, no secret key needed).
 
 ```tsx
-const txn = await getTransaction('txn_abc123');
-console.log(txn.status, txn.amount, txn.paidAt);
+const { status, transaction } = await getCheckoutStatus(sessionToken);
+console.log(status, transaction?.status, transaction?.paidAt);
 ```
 
-**Transaction**
+> `getTransaction()` was removed: `GET /api/v1/transactions/:id` requires a secret key, which must never ship in a mobile app (it always returned 403 with a publishable key). Treat `getCheckoutStatus` as a UI hint only; confirm payment server-side (webhooks or `GET /api/v1/transactions/:id` with your secret key) before fulfilling an order.
+
+**CheckoutStatus**
 
 | Field | Type | Description |
 |-------|------|-------------|
+| `status` | `string` | Session status (`open`, `processing`, `complete`, `expired`, ...) |
+| `transaction` | `{ id, status, paidAt } \| undefined` | Linked transaction, once a payment started |
+
+-------|------|-------------|
 | `id` | `string` | Transaction ID |
 | `amount` | `number` | Amount in centimes |
 | `currency` | `string` | Currency code |
@@ -382,6 +389,10 @@ try {
 | `VALIDATION_ERROR` | Invalid parameters | Amount < 100, missing required fields |
 | `RATE_LIMITED` | Too many requests | Over 10 checkout sessions/minute |
 | `SERVER_ERROR` | Server-side error | Aslan API 5xx or unexpected response |
+| `PROVIDER_ACCOUNT_NOT_FOUND` | Unknown `providerAccount` | Alias names no account of your merchant |
+| `PROVIDER_ACCOUNT_INACTIVE` | Deactivated `providerAccount` | The account exists but is deactivated |
+| `PROVIDER_ACCOUNT_UNSUPPORTED` | Account cannot take the request | The account's provider does not support this checkout |
+| `PROVIDER_ACCOUNT_RECURRING_DISABLED` | Recurring disabled | The account does not allow recurring payments |
 
 ---
 
@@ -422,6 +433,7 @@ interface CheckoutParams {
   customer?: { email?: string; name?: string; phone?: string };
   metadata?: Record<string, string>;
   lineItems?: LineItem[];
+  providerAccount?: string;
 }
 
 interface CheckoutResult {
@@ -462,7 +474,9 @@ class AslanError extends Error {
 type AslanErrorCode =
   | 'INVALID_KEY' | 'NETWORK_ERROR' | 'CHECKOUT_CANCELLED'
   | 'CHECKOUT_FAILED' | 'VALIDATION_ERROR' | 'RATE_LIMITED'
-  | 'SERVER_ERROR';
+  | 'SERVER_ERROR'
+  | 'PROVIDER_ACCOUNT_NOT_FOUND' | 'PROVIDER_ACCOUNT_INACTIVE'
+  | 'PROVIDER_ACCOUNT_UNSUPPORTED' | 'PROVIDER_ACCOUNT_RECURRING_DISABLED';
 ```
 
 ---

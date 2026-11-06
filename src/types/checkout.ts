@@ -22,10 +22,6 @@ export interface Seller {
 export interface CheckoutParams {
   /** Amount in centimes (100 = 1.00 MAD). Optional for open-amount sessions. */
   amount?: number;
-  /** Minimum amount in centimes (open-amount sessions) */
-  minAmount?: number;
-  /** Maximum amount in centimes (open-amount sessions) */
-  maxAmount?: number;
   /** Only MAD supported */
   currency?: 'MAD';
   /** Override the auto-generated success URL */
@@ -41,6 +37,8 @@ export interface CheckoutParams {
   lineItems?: LineItem[];
   sellers?: Seller[];
   vendorId?: string;
+  /** Alias of an additional PSP account (`^[a-z0-9][a-z0-9-]{0,31}$`). Omit or `"default"` for the default account. */
+  providerAccount?: string;
 }
 
 export interface CheckoutResult {
