@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { apiRequest } from '../api/client';
+import { withSessionToken } from '../api/checkout';
 import { getCheckoutStatus } from '../api/transactions';
 
 function mockFetch(status: number, body: unknown) {
@@ -48,5 +49,16 @@ describe('getCheckoutStatus', () => {
     await expect(getCheckoutStatus('tok/1', 'pk_test_x', 'https://h')).resolves.toEqual({ status: 'open' });
     expect(fn.mock.calls[0][0]).toBe('https://h/checkout/sessions/tok%2F1/status');
     expect(fn.mock.calls[0][1].method).toBe('GET');
+  });
+});
+
+describe('withSessionToken', () => {
+  it('adds the session token to every result', () => {
+    const resolve = vi.fn();
+    const wrapped = withSessionToken(resolve, 'tok_1');
+    wrapped({ status: 'cancelled' });
+    wrapped({ status: 'succeeded', transactionId: 't1' });
+    expect(resolve).toHaveBeenNthCalledWith(1, { status: 'cancelled', sessionToken: 'tok_1' });
+    expect(resolve).toHaveBeenNthCalledWith(2, { status: 'succeeded', transactionId: 't1', sessionToken: 'tok_1' });
   });
 });

@@ -1,6 +1,6 @@
 import { useCallback, useContext, useRef, useState } from 'react';
 import { AslanContext, type AslanContextValue } from './AslanProvider';
-import { createCheckoutSession } from './api/checkout';
+import { createCheckoutSession, withSessionToken } from './api/checkout';
 import { getCheckoutStatus as fetchCheckoutStatus } from './api/transactions';
 import { resolvePaymentLinkUrl } from './api/payment-links';
 import type { CheckoutParams, CheckoutResult } from './types/checkout';
@@ -74,7 +74,7 @@ export function useAslan(): UseAslanReturn {
 
       // Open WebView with checkout URL
       return new Promise<CheckoutResult>((resolve) => {
-        resolveRef.current = resolve;
+        resolveRef.current = withSessionToken(resolve, session.token);
         setCheckoutUrl(session.url);
       });
     },

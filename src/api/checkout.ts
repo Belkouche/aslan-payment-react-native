@@ -1,4 +1,5 @@
 import { apiRequest } from './client';
+import type { CheckoutResult } from '../types/checkout';
 
 export interface CreateSessionRequest {
   amount?: number;
@@ -51,4 +52,12 @@ export function createCheckoutSession(
     publishableKey,
     baseUrl,
   });
+}
+
+/** Wrap a checkout resolver so every outcome (success, failure, cancel) carries the session token. */
+export function withSessionToken(
+  resolve: (result: CheckoutResult) => void,
+  sessionToken: string,
+): (result: CheckoutResult) => void {
+  return (result) => resolve({ ...result, sessionToken });
 }

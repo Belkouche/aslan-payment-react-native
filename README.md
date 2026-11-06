@@ -271,13 +271,15 @@ const result = await checkout({
 |-------|------|-------------|
 | `status` | `'succeeded' \| 'failed' \| 'cancelled'` | Payment outcome |
 | `transactionId` | `string \| undefined` | Transaction ID (present on success/failure) |
+| `sessionToken` | `string \| undefined` | Checkout session token (set by `checkout()`); pass to `getCheckoutStatus()` |
 
 #### `getCheckoutStatus(sessionToken: string)`
 
 Poll a checkout session by its token (public route, no secret key needed).
 
 ```tsx
-const { status, transaction } = await getCheckoutStatus(sessionToken);
+const result = await checkout({ amount: 5000 });
+const { status, transaction } = await getCheckoutStatus(result.sessionToken!);
 console.log(status, transaction?.status, transaction?.paidAt);
 ```
 
@@ -439,6 +441,7 @@ interface CheckoutParams {
 interface CheckoutResult {
   status: 'succeeded' | 'failed' | 'cancelled';
   transactionId?: string;
+  sessionToken?: string;
 }
 
 interface LineItem {

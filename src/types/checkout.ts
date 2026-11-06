@@ -44,4 +44,6 @@ export interface CheckoutParams {
 export interface CheckoutResult {
   status: 'succeeded' | 'failed' | 'cancelled';
   transactionId?: string;
+  /** Checkout session token (present for `checkout()`); pass to `getCheckoutStatus()`. */
+  sessionToken?: string;
 }
