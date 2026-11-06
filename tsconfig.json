@@ -17,5 +17,5 @@
     "moduleResolution": "node"
   },
   "include": ["src"],
-  "exclude": ["dist", "node_modules", "example"]
+  "exclude": ["dist", "node_modules", "example", "src/__tests__"]
 }
