@@ -41,6 +41,8 @@ export interface CheckoutParams {
   lineItems?: LineItem[];
   sellers?: Seller[];
   vendorId?: string;
+  /** Alias of an additional PSP account (`^[a-z0-9][a-z0-9-]{0,31}$`). Omit or `"default"` for the default account. */
+  providerAccount?: string;
 }
 
 export interface CheckoutResult {

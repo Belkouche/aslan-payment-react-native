@@ -31,6 +31,7 @@ export interface CreateSessionRequest {
     metadata?: Record<string, string>;
   }>;
   vendorId?: string;
+  providerAccount?: string;
 }
 
 export interface CheckoutSessionResponse {

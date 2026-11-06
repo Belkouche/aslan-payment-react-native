@@ -67,6 +67,7 @@ export function useAslan(): UseAslanReturn {
           lineItems: params.lineItems,
           sellers: params.sellers,
           vendorId: params.vendorId,
+          providerAccount: params.providerAccount,
         },
         config.publishableKey,
         config.apiBaseUrl,

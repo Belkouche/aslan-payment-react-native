@@ -13,4 +13,6 @@ export interface Transaction {
   status: TransactionStatus;
   paidAt?: string;
   createdAt: string;
+  /** `"default"`, or the alias of the PSP account that processed this payment. */
+  providerAccount?: string;
 }

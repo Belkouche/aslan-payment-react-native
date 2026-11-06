@@ -45,9 +45,18 @@ export async function apiRequest<T>(options: RequestOptions): Promise<T> {
   if (!response.ok) {
     const code = json.error?.code ?? 'SERVER_ERROR';
     const message = json.error?.message ?? `Request failed with status ${response.status}`;
-    const errorCode = (['INVALID_KEY', 'VALIDATION_ERROR', 'RATE_LIMITED', 'SERVER_ERROR'] as const).includes(
-      code as any,
-    )
+    const errorCode = (
+      [
+        'INVALID_KEY',
+        'VALIDATION_ERROR',
+        'RATE_LIMITED',
+        'SERVER_ERROR',
+        'PROVIDER_ACCOUNT_NOT_FOUND',
+        'PROVIDER_ACCOUNT_INACTIVE',
+        'PROVIDER_ACCOUNT_UNSUPPORTED',
+        'PROVIDER_ACCOUNT_RECURRING_DISABLED',
+      ] as const
+    ).includes(code as any)
       ? (code as any)
       : 'SERVER_ERROR';
     throw new AslanError(errorCode, message, response.status);

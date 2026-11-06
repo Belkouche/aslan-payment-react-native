@@ -263,6 +263,7 @@ const result = await checkout({
 | `customer` | `object` | No | `{ email?, name?, phone? }` |
 | `metadata` | `Record<string, string>` | No | Custom key-value pairs (max 20 keys, values max 500 chars) |
 | `lineItems` | `LineItem[]` | No | Array of line items (max 50) |
+| `providerAccount` | `string` | No | Alias of an additional PSP account (`^[a-z0-9][a-z0-9-]{0,31}$`). Omit or `"default"` for the default account |
 
 **CheckoutResult**
 
@@ -382,6 +383,10 @@ try {
 | `VALIDATION_ERROR` | Invalid parameters | Amount < 100, missing required fields |
 | `RATE_LIMITED` | Too many requests | Over 10 checkout sessions/minute |
 | `SERVER_ERROR` | Server-side error | Aslan API 5xx or unexpected response |
+| `PROVIDER_ACCOUNT_NOT_FOUND` | Unknown `providerAccount` | Alias names no account of your merchant |
+| `PROVIDER_ACCOUNT_INACTIVE` | Deactivated `providerAccount` | The account exists but is deactivated |
+| `PROVIDER_ACCOUNT_UNSUPPORTED` | Account cannot take the request | The account's provider does not support this checkout |
+| `PROVIDER_ACCOUNT_RECURRING_DISABLED` | Recurring disabled | The account does not allow recurring payments |
 
 ---
 
@@ -422,6 +427,7 @@ interface CheckoutParams {
   customer?: { email?: string; name?: string; phone?: string };
   metadata?: Record<string, string>;
   lineItems?: LineItem[];
+  providerAccount?: string;
 }
 
 interface CheckoutResult {
@@ -462,7 +468,9 @@ class AslanError extends Error {
 type AslanErrorCode =
   | 'INVALID_KEY' | 'NETWORK_ERROR' | 'CHECKOUT_CANCELLED'
   | 'CHECKOUT_FAILED' | 'VALIDATION_ERROR' | 'RATE_LIMITED'
-  | 'SERVER_ERROR';
+  | 'SERVER_ERROR'
+  | 'PROVIDER_ACCOUNT_NOT_FOUND' | 'PROVIDER_ACCOUNT_INACTIVE'
+  | 'PROVIDER_ACCOUNT_UNSUPPORTED' | 'PROVIDER_ACCOUNT_RECURRING_DISABLED';
 ```
 
 ---
